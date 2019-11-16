@@ -5,6 +5,7 @@ class Wallet:
 	def __init__(self, ressources):
 		self._initial_ressources = ressources
 		self._free_ressources = ressources
+		self._free_ressources_by_stock = {}
 		self._wallet_price = ressources
 		self._stocks = {}
 

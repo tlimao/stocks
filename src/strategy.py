@@ -19,13 +19,11 @@ class Strategy:
 		if self._rsi_count_days > 0:
 			self._rsi.update(price['close'])
 			self._rsi_count_days -= 1
-			return signal
 
 		else:
 			strengh = self._rsi.getRsi()
 
 			if strengh > self._rsi_threshold[1]:
-				signal['action'] = Operation.SELL
 				qnt = price['open'] * stock['qnt'] / (price['open'] + stock['pm'])
 				qnt_r = qnt % 100
 				if qnt_r > 50:
@@ -35,10 +33,11 @@ class Strategy:
 				
 				qnt_q = int(qnt / 100)
 				
-				signal['qnt'] = qnt_q * 100 + qnt_r
+				if qnt_q * 100 + qnt_r > 0:
+					signal['qnt'] = qnt_q * 100 + qnt_r
+					signal['action'] = Operation.SELL
 
 			if strengh < self._rsi_threshold[0]:
-				signal['action'] = Operation.BUY
 				qnt = wallet.getRessources() / price['open']
 				qnt_r = qnt % 100
 				if qnt_r > 50:
@@ -48,12 +47,14 @@ class Strategy:
 				
 				qnt_q = int(qnt / 100)
 				
-				signal['qnt'] = qnt_q * 100 + qnt_r
+				if qnt_q * 100 + qnt_r > 0:
+					signal['qnt'] = qnt_q * 100 + qnt_r
+					signal['action'] = Operation.BUY
 
 			self._rsi_last = strengh
 			self._rsi.update(price['close'])
 
-			return signal
+		return signal
 
 	def evalueate(self, stock, price, wallet):
 		return self._analyze(stock, price, wallet)
