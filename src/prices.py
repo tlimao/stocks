@@ -49,7 +49,7 @@ class Prices:
 
 	def setDatePoint(self, date):
 		self._start_date = date
-		self._pointer = self._dates_idx[date]
+		self._pointer = self._dates_idx[self._start_date]
 
 	def getNextPrice(self):
 		self._pointer -= 1

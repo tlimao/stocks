@@ -41,7 +41,7 @@ class Wallet:
 				self._free_ressources -= price * qnt
 				self._stocks[ticker] = {'pm' : price, 'qnt' : qnt, 'ex' : 0,  'price' : price, 'return' : 0}
 
-		self._updateBalances()
+		self.updateBalances(ticker, price)
 
 	def getStock(self, ticker):
 		return self._stocks[ticker]
@@ -49,17 +49,21 @@ class Wallet:
 	def getAllStocks(self):
 		return self._stocks
 
-	def _updateBalances(self):
-		total_budget = 0
+	def updateBalances(self, ticker, price):
+		if self._stocks[ticker] != None:
+			total_budget = 0
 
-		for key, value in self._stocks.items():
-			total_budget += value['price'] * value['qnt']
+			self._stocks[ticker].update({'price' : price})
 
-		for key, value in self._stocks.items():
-			value.update({ 'ex' : value['price'] * value['qnt'] / total_budget })
-			value.update({ 'return' : (value['price'] - value['pm']) / value['pm']})
+			for key, value in self._stocks.items():
+				total_budget += value['price'] * value['qnt']
 
-		self._wallet_price = total_budget + self._free_ressources
+			for key, value in self._stocks.items():
+				if value['pm'] != 0:
+					value.update({'ex' : value['price'] * value['qnt'] / total_budget })
+					value.update({'return' : (value['price'] - value['pm']) / value['pm']})
+
+			self._wallet_price = total_budget + self._free_ressources
 
 	def __str__(self):
 		wallet_str =  ""
@@ -75,13 +79,18 @@ class Wallet:
 				rreturn = str(round(value['return'] * 100, 2)) + "%"
 			)
 
+		wallet_str += "\nReturn Total: " + str(self.getReturn()) + "% (" + str(self._wallet_price) + ")"
+
 		return wallet_str
 
 	def getReturn(self):
-		return (self._wallet_price - self._initial_ressources ) / self._initial_ressources
+		return round(100 * (self._wallet_price - self._initial_ressources ) / self._initial_ressources, 2)
 
 	def getWalletPrice(self):
 		return self._wallet_price
 
 	def getRessources(self):
 		return self._free_ressources
+
+	def addStock(self, ticker):
+		self._stocks[ticker] = {'pm' : 0, 'qnt' : 0, 'ex' : 0,  'price' : 0, 'return' : 0}
